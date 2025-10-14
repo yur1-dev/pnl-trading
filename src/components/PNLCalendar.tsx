@@ -360,7 +360,7 @@ const TradingJournal: React.FC = () => {
                 return (
                   <div
                     key={idx}
-                    className="aspect-square rounded-lg bg-zinc-800/20"
+                    className="h-20 sm:h-24 rounded-lg bg-zinc-800/20"
                   />
                 );
               }
@@ -369,7 +369,7 @@ const TradingJournal: React.FC = () => {
                 <button
                   key={idx}
                   onClick={() => handleCellClick(date, true)}
-                  className={`aspect-square rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer relative group overflow-hidden
+                  className={`h-20 sm:h-24 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer relative group overflow-hidden
                     ${
                       pnl > 0
                         ? "bg-emerald-500/10 border-2 border-emerald-500/30 hover:border-emerald-500/60 hover:bg-emerald-500/20"
