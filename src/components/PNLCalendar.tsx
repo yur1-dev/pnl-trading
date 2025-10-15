@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, MouseEvent } from "react";
+import Image from "next/image";
 import {
   TrendingUp,
   TrendingDown,
@@ -84,7 +85,7 @@ const TradingJournal: React.FC = () => {
           setData(JSON.parse(savedData));
           return;
         }
-      } catch (e) {
+      } catch {
         console.log("Session storage not available, using memory only");
       }
     }
@@ -118,7 +119,7 @@ const TradingJournal: React.FC = () => {
     if (data.length > 0 && typeof window !== "undefined") {
       try {
         sessionStorage.setItem("tradingJournalData", JSON.stringify(data));
-      } catch (e) {
+      } catch {
         console.log("Could not save to session storage");
       }
     }
@@ -167,7 +168,11 @@ const TradingJournal: React.FC = () => {
     setTpValue("");
   };
 
-  const handleCellClick = (date: Date, isCurrent: boolean, e?: MouseEvent) => {
+  const handleCellClick = (
+    date: Date,
+    isCurrent: boolean,
+    e?: MouseEvent<HTMLButtonElement>
+  ) => {
     if (!isCurrent) return;
     const dateStr = date.toISOString().split("T")[0];
     const trade = getTrade(date);
@@ -182,7 +187,10 @@ const TradingJournal: React.FC = () => {
     }
   };
 
-  const handleCellMouseEnter = (dateStr: string, e: MouseEvent) => {
+  const handleCellMouseEnter = (
+    dateStr: string,
+    e: MouseEvent<HTMLButtonElement>
+  ) => {
     setHoveredDate(dateStr);
     setTooltipPos({ x: e.clientX, y: e.clientY });
   };
@@ -299,7 +307,7 @@ const TradingJournal: React.FC = () => {
     }
 
     // Load background image from public folder with fading style effect
-    const img = new Image();
+    const img = document.createElement("img");
     return new Promise((resolve) => {
       img.onload = () => {
         if (!ctx || !canvas) {
@@ -343,15 +351,19 @@ const TradingJournal: React.FC = () => {
         // Title with subtle glow effect
         ctx.shadowColor = "#3b82f6";
         ctx.shadowBlur = 8 * dpr;
-        ctx.font = `bold ${52 * dpr}px...`; // TITLE SIZE
-        ctx.fillText("Trading Journal", 60, 60 / dpr); // X=60, Y=60
+        ctx.font = `bold ${52 * dpr}px Inter, sans-serif`;
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillText("Trading Journal", 60, 60 / dpr);
 
-        ctx.font = `${28 * dpr}px...`; // SUBTITLE SIZE
+        ctx.shadowBlur = 0;
+        ctx.font = `${28 * dpr}px Inter, sans-serif`;
         ctx.fillStyle = "#888";
-        ctx.fillText(periodTitle, 60, 120 / dpr); // X=60, Y=120
+        ctx.fillText(periodTitle, 60, 120 / dpr);
 
         // Main P&L Label
-        ctx.font = `${26 * dpr}px -apple-system, BlinkMacSystemFont, Arial`;
+        ctx.font = `${26 * dpr}px Inter, sans-serif`;
         ctx.fillStyle = "#888";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
@@ -360,9 +372,7 @@ const TradingJournal: React.FC = () => {
         // Main P&L Value with glow - HUGE
         ctx.shadowColor = boxColor;
         ctx.shadowBlur = 25 * dpr;
-        ctx.font = `bold ${
-          95 * dpr
-        }px -apple-system, BlinkMacSystemFont, Arial`;
+        ctx.font = `bold ${95 * dpr}px Inter, sans-serif`;
         ctx.fillStyle = boxColor;
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
@@ -383,7 +393,7 @@ const TradingJournal: React.FC = () => {
           y: number
         ) => {
           // Label
-          ctx.font = `${24 * dpr}px -apple-system, BlinkMacSystemFont, Arial`;
+          ctx.font = `${24 * dpr}px Inter, sans-serif`;
           ctx.fillStyle = "#888";
           ctx.textAlign = "left";
           ctx.textBaseline = "top";
@@ -392,9 +402,7 @@ const TradingJournal: React.FC = () => {
           // Value below label
           ctx.shadowColor = color;
           ctx.shadowBlur = 8 * dpr;
-          ctx.font = `bold ${
-            50 * dpr
-          }px -apple-system, BlinkMacSystemFont, Arial`;
+          ctx.font = `bold ${50 * dpr}px Inter, sans-serif`;
           ctx.fillStyle = color;
           ctx.fillText(value, x, y + 32 / dpr);
           ctx.shadowBlur = 0;
@@ -428,7 +436,7 @@ const TradingJournal: React.FC = () => {
 
         // Win/Loss - special layout
         const wlY = statsStartY + rowHeight;
-        ctx.font = `${24 * dpr}px -apple-system, BlinkMacSystemFont, Arial`;
+        ctx.font = `${24 * dpr}px Inter, sans-serif`;
         ctx.fillStyle = "#888";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
@@ -436,9 +444,7 @@ const TradingJournal: React.FC = () => {
 
         // Wins and Losses on same line
         const wlValueY = wlY + 32 / dpr;
-        ctx.font = `bold ${
-          50 * dpr
-        }px -apple-system, BlinkMacSystemFont, Arial`;
+        ctx.font = `bold ${50 * dpr}px Inter, sans-serif`;
 
         // Wins
         ctx.shadowColor = "#22c55e";
@@ -451,15 +457,13 @@ const TradingJournal: React.FC = () => {
         // Slash
         ctx.shadowBlur = 0;
         ctx.fillStyle = "#555";
-        ctx.font = `${38 * dpr}px -apple-system, BlinkMacSystemFont, Arial`;
+        ctx.font = `${38 * dpr}px Inter, sans-serif`;
         ctx.fillText(" / ", col2X + winsWidth + 15, wlValueY + 6 / dpr);
 
         const slashWidth = ctx.measureText(" / ").width;
 
         // Losses
-        ctx.font = `bold ${
-          50 * dpr
-        }px -apple-system, BlinkMacSystemFont, Arial`;
+        ctx.font = `bold ${50 * dpr}px Inter, sans-serif`;
         ctx.shadowColor = "#ef4444";
         ctx.shadowBlur = 8 * dpr;
         ctx.fillStyle = "#ef4444";
@@ -474,9 +478,7 @@ const TradingJournal: React.FC = () => {
         const bottomY = height - 95 / dpr;
         ctx.shadowColor = "#3b82f6";
         ctx.shadowBlur = 6 * dpr;
-        ctx.font = `bold ${
-          42 * dpr
-        }px -apple-system, BlinkMacSystemFont, Arial`;
+        ctx.font = `bold ${42 * dpr}px Inter, sans-serif`;
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
@@ -484,7 +486,7 @@ const TradingJournal: React.FC = () => {
         ctx.shadowBlur = 0;
 
         ctx.textAlign = "center";
-        ctx.font = `${22 * dpr}px -apple-system, BlinkMacSystemFont, Arial`;
+        ctx.font = `${22 * dpr}px Inter, sans-serif`;
         ctx.fillStyle = "#555";
         ctx.fillText("Track • Analyze • Improve", width / 2, height - 35 / dpr);
         ctx.textAlign = "left";
@@ -547,8 +549,7 @@ const TradingJournal: React.FC = () => {
     return days;
   };
 
-  const { total, traded, wins, losses, winRate, maxStreak, weeklyProfit } =
-    calculateStats();
+  const { total, traded, wins, losses, winRate } = calculateStats();
   const calendarDays = generateCalendarDays();
   const hoveredTrade = hoveredDate
     ? data.find((d) => d.date === hoveredDate)
@@ -706,8 +707,8 @@ const TradingJournal: React.FC = () => {
               return (
                 <button
                   key={idx}
-                  onClick={(e) => handleCellClick(date, true, e as any)}
-                  onMouseEnter={(e) => handleCellMouseEnter(dateStr, e as any)}
+                  onClick={(e) => handleCellClick(date, true, e)}
+                  onMouseEnter={(e) => handleCellMouseEnter(dateStr, e)}
                   onMouseLeave={handleCellMouseLeave}
                   className={`h-16 sm:h-20 lg:h-24 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer relative group overflow-hidden
                     ${
@@ -913,9 +914,12 @@ const TradingJournal: React.FC = () => {
                   Preview
                 </label>
                 <div className="bg-zinc-800/50 rounded-xl p-4 border border-zinc-700">
-                  <img
+                  <Image
                     src={previewUrl}
                     alt="Trading Card Preview"
+                    width={1363}
+                    height={763}
+                    unoptimized
                     className="w-full h-auto rounded-lg shadow-lg"
                   />
                 </div>
