@@ -72,21 +72,28 @@ const TradingJournal: React.FC = () => {
   ];
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  // Load data from memory on mount
+  // Load data from localStorage on mount
   useEffect(() => {
-    // Create a simple in-memory store
     const storageKey = "tradingJournalData";
 
-    // Try to load from sessionStorage (works in browser)
     if (typeof window !== "undefined") {
       try {
-        const savedData = sessionStorage.getItem(storageKey);
+        const savedData = localStorage.getItem(storageKey);
         if (savedData) {
-          setData(JSON.parse(savedData));
-          return;
+          const parsedData = JSON.parse(savedData);
+          if (Array.isArray(parsedData)) {
+            setData(parsedData);
+            console.log(
+              "Data loaded from localStorage:",
+              parsedData.length,
+              "trades"
+            );
+            return;
+          }
         }
-      } catch {
-        console.log("Session storage not available, using memory only");
+      } catch (error) {
+        console.error("Failed to load from localStorage:", error);
+        localStorage.removeItem(storageKey); // Clear bad data
       }
     }
 
@@ -118,9 +125,10 @@ const TradingJournal: React.FC = () => {
   useEffect(() => {
     if (data.length > 0 && typeof window !== "undefined") {
       try {
-        sessionStorage.setItem("tradingJournalData", JSON.stringify(data));
-      } catch {
-        console.log("Could not save to session storage");
+        localStorage.setItem("tradingJournalData", JSON.stringify(data));
+        console.log("Data saved to localStorage:", data.length, "trades");
+      } catch (error) {
+        console.error("Failed to save to localStorage:", error);
       }
     }
   }, [data]);
