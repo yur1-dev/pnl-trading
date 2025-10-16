@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   BarChart3,
+  Trash2,
 } from "lucide-react";
 
 interface TradeData {
@@ -74,7 +75,7 @@ const TradingJournal: React.FC = () => {
 
   // Load data from localStorage on mount
   useEffect(() => {
-    const storageKey = "tradingJournalData";
+    const storageKey = "tradingJournalData"; // TODO: Change this key if you want a different storage namespace
 
     if (typeof window !== "undefined") {
       try {
@@ -97,28 +98,8 @@ const TradingJournal: React.FC = () => {
       }
     }
 
-    // Generate sample data only if nothing saved
-    const generateSampleData = () => {
-      const sampleData: TradeData[] = [];
-      const today = new Date();
-      for (let i = 0; i < 15; i++) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-        const pnl = (Math.random() - 0.4) * 2000;
-        const entry = 100 + Math.random() * 50;
-        const sl = entry - 5 - Math.random() * 10;
-        const tp = entry + 10 + Math.random() * 20;
-        sampleData.push({
-          date: date.toISOString().split("T")[0],
-          pnl: Math.round(pnl * 100) / 100,
-          entry,
-          sl,
-          tp,
-        });
-      }
-      setData(sampleData);
-    };
-    generateSampleData();
+    // Start with empty data to begin at 0
+    setData([]);
   }, []);
 
   // Save data whenever it changes
@@ -130,6 +111,9 @@ const TradingJournal: React.FC = () => {
       } catch (error) {
         console.error("Failed to save to localStorage:", error);
       }
+    } else if (typeof window !== "undefined") {
+      // Clear localStorage if no data
+      localStorage.removeItem("tradingJournalData");
     }
   }, [data]);
 
@@ -141,6 +125,15 @@ const TradingJournal: React.FC = () => {
       }
     };
   }, [previewUrl]);
+
+  // Clear all data function
+  const clearAllData = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("tradingJournalData");
+    }
+    setData([]);
+    console.log("All data cleared. Starting fresh from 0.");
+  };
 
   const getTrade = (date: Date) => {
     const dateStr = date.toISOString().split("T")[0];
@@ -272,8 +265,8 @@ const TradingJournal: React.FC = () => {
     if (!ctx) return null;
 
     const dpr = window.devicePixelRatio || 1;
-    const width = 1363;
-    const height = 763;
+    const width = 1363; // TODO: Adjust canvas width if needed for your design
+    const height = 763; // TODO: Adjust canvas height if needed for your design
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
@@ -282,10 +275,7 @@ const TradingJournal: React.FC = () => {
     const { total, traded, wins, losses, winRate, maxStreak, weeklyProfit } =
       calculateStats(selectedTimeframe);
     const isPositive = total >= 0;
-    const boxColor = isPositive ? "#22c55e" : "#ef4444";
-    const mainLabel = `${
-      selectedTimeframe.charAt(0).toUpperCase() + selectedTimeframe.slice(1)
-    } P&L`;
+    const boxColor = isPositive ? "#22c55e" : "#ef4444"; // TODO: Customize colors for positive/negative P&L to match your image (e.g., green for positive, red for negative)
 
     // Compute period title
     let periodTitle = "";
@@ -323,12 +313,12 @@ const TradingJournal: React.FC = () => {
           return;
         }
         // Draw background image
-        ctx.globalAlpha = 0.8;
+        ctx.globalAlpha = 0.8; // TODO: Adjust opacity for background image to match your shard/fading effect
         ctx.drawImage(img, 0, 0, width, height);
         ctx.globalAlpha = 1.0;
         // Overlay a subtle dark gradient for enhanced fading/shard effect
         const overlayGradient = ctx.createLinearGradient(0, 0, 0, height);
-        overlayGradient.addColorStop(0, "rgba(0, 0, 0, 0.3)");
+        overlayGradient.addColorStop(0, "rgba(0, 0, 0, 0.3)"); // TODO: Customize gradient stops for your blue shard background
         overlayGradient.addColorStop(1, "rgba(5, 5, 5, 0.7)");
         ctx.fillStyle = overlayGradient;
         ctx.fillRect(0, 0, width, height);
@@ -341,14 +331,14 @@ const TradingJournal: React.FC = () => {
           return;
         }
         const gradient = ctx.createLinearGradient(0, 0, width, height);
-        gradient.addColorStop(0, "#050505");
+        gradient.addColorStop(0, "#050505"); // TODO: Customize fallback gradient colors to blue/black like your image
         gradient.addColorStop(0.3, "rgba(10, 10, 26, 0.8)");
         gradient.addColorStop(1, "#0a0a1a");
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, width, height);
         drawContent();
       };
-      img.src = "/bg-result-share.png";
+      img.src = "/bg-result-share.png"; // TODO: Replace with your shard background image path, e.g., "/shard-bg.png"
 
       function drawContent() {
         if (!ctx || !canvas) {
@@ -356,148 +346,132 @@ const TradingJournal: React.FC = () => {
           return;
         }
 
-        // Title with subtle glow effect
-        ctx.shadowColor = "#3b82f6";
-        ctx.shadowBlur = 8 * dpr;
-        ctx.font = `bold ${52 * dpr}px Inter, sans-serif`;
+        // Title top left with glow
+        ctx.shadowColor = "#3b82f6"; // TODO: Change glow color to blue (#3b82f6) or match your image's blue accents
+        ctx.shadowBlur = 12 * dpr;
+        ctx.font = `bold ${52 * dpr}px Inter, sans-serif`; // TODO: Adjust font size and family if needed
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
-        ctx.fillText("Trading Journal", 60, 60 / dpr);
+        ctx.fillText("Trading Journal", 60, 60 / dpr); // TODO: Change text to something like "1D Realized P&L" or your app name
 
         ctx.shadowBlur = 0;
         ctx.font = `${28 * dpr}px Inter, sans-serif`;
-        ctx.fillStyle = "#888";
-        ctx.fillText(periodTitle, 60, 120 / dpr);
+        ctx.fillStyle = "#888"; // TODO: Adjust subtitle color
+        ctx.fillText(periodTitle, 60, 120 / dpr); // TODO: Customize period title format, e.g., add "4 wallets" if relevant
 
-        // Main P&L Label
-        ctx.font = `${26 * dpr}px Inter, sans-serif`;
-        ctx.fillStyle = "#888";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-        ctx.fillText(mainLabel, 50, 165 / dpr);
+        // Large P&L centered with rounded box and glow
+        const pnlText = formatPNL(total);
+        ctx.font = `bold ${120 * dpr}px Inter, sans-serif`; // TODO: Make font larger/smaller to match your image's big P&L text
+        const pnlMetrics = ctx.measureText(pnlText);
+        const pnlWidth = pnlMetrics.width;
+        const pnlHeight =
+          pnlMetrics.actualBoundingBoxAscent +
+          pnlMetrics.actualBoundingBoxDescent;
+        const boxPadding = 40 / dpr;
+        const boxX = (width - pnlWidth) / 2 - boxPadding;
+        const boxY = 200 / dpr; // TODO: Adjust Y position to center vertically like in your image
+        const boxW = pnlWidth + 2 * boxPadding;
+        const boxH = pnlHeight + 20 / dpr;
+        const cornerRadius = 20 / dpr; // TODO: Change radius for rounded corners to match your design
 
-        // Main P&L Value with glow - HUGE
+        // Draw rounded rect for P&L box
         ctx.shadowColor = boxColor;
-        ctx.shadowBlur = 25 * dpr;
-        ctx.font = `bold ${95 * dpr}px Inter, sans-serif`;
+        ctx.shadowBlur = 20 * dpr; // TODO: Increase/decrease blur for glow effect
         ctx.fillStyle = boxColor;
-        ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-        ctx.fillText(formatPNL(total), 50, 195 / dpr);
+        // Note: roundRect is a modern Canvas API; if not supported, implement a custom rounded rect function here
+        ctx.roundRect(boxX, boxY, boxW, boxH, cornerRadius);
+        ctx.fill();
         ctx.shadowBlur = 0;
 
-        // Stats section - clean vertical stack layout
-        const statsStartY = 325 / dpr;
-        const rowHeight = 85 / dpr;
-        const col1X = 50;
-        const col2X = width / 2 + 20;
+        // P&L text inside box with inner glow
+        ctx.shadowColor = isPositive ? "#22c55e" : "#ef4444";
+        ctx.shadowBlur = 15 * dpr;
+        ctx.fillStyle = "#ffffff"; // TODO: Change to black or blue for better contrast like in your image
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(pnlText, width / 2, boxY + boxH / 2);
+        ctx.shadowBlur = 0;
 
-        const drawStatRow = (
-          label: string,
-          value: string,
-          color: string,
-          x: number,
-          y: number
-        ) => {
-          // Label
-          ctx.font = `${24 * dpr}px Inter, sans-serif`;
-          ctx.fillStyle = "#888";
-          ctx.textAlign = "left";
-          ctx.textBaseline = "top";
-          ctx.fillText(label, x, y);
-
-          // Value below label
-          ctx.shadowColor = color;
-          ctx.shadowBlur = 8 * dpr;
-          ctx.font = `bold ${50 * dpr}px Inter, sans-serif`;
-          ctx.fillStyle = color;
-          ctx.fillText(value, x, y + 32 / dpr);
-          ctx.shadowBlur = 0;
-        };
-
-        // Left column stats
-        drawStatRow("Win Rate", `${winRate}%`, "#22c55e", col1X, statsStartY);
-        drawStatRow(
-          "Win Streak",
-          maxStreak.toString(),
-          "#f59e0b",
-          col1X,
-          statsStartY + rowHeight
-        );
-        drawStatRow(
-          "Trading Days",
-          traded.toString(),
-          "#06b6d4",
-          col1X,
-          statsStartY + rowHeight * 2
-        );
-
-        // Right column stats
-        drawStatRow(
-          "Weekly P&L",
-          formatPNL(weeklyProfit),
-          weeklyProfit >= 0 ? "#22c55e" : "#ef4444",
-          col2X,
-          statsStartY
-        );
-
-        // Win/Loss - special layout
-        const wlY = statsStartY + rowHeight;
+        // Sub stats below large P&L, left aligned labels, right aligned values
+        const subY = boxY + boxH + 40 / dpr; // TODO: Adjust starting Y for sub-stats block
+        const labelX = 60; // TODO: Adjust left margin for labels
+        const valueX = width - 200; // TODO: Adjust right margin for values
+        const lineHeight = 35 / dpr; // TODO: Adjust spacing between rows
         ctx.font = `${24 * dpr}px Inter, sans-serif`;
-        ctx.fillStyle = "#888";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
-        ctx.fillText("Wins / Losses", col2X, wlY);
+        ctx.fillStyle = "#888";
 
-        // Wins and Losses on same line
-        const wlValueY = wlY + 32 / dpr;
-        ctx.font = `bold ${50 * dpr}px Inter, sans-serif`;
-
-        // Wins
+        // Win Rate row
+        ctx.fillText("Win Rate", labelX, subY); // TODO: Change label to "PNL Bought" or match your image
+        ctx.textAlign = "right";
         ctx.shadowColor = "#22c55e";
         ctx.shadowBlur = 8 * dpr;
-        ctx.fillStyle = "#22c55e";
-        ctx.fillText(wins.toString(), col2X, wlValueY);
-
-        const winsWidth = ctx.measureText(wins.toString()).width;
-
-        // Slash
+        ctx.fillStyle = "#22c55e"; // TODO: Customize value color
+        ctx.fillText(`${winRate}%`, valueX, subY);
         ctx.shadowBlur = 0;
-        ctx.fillStyle = "#555";
-        ctx.font = `${38 * dpr}px Inter, sans-serif`;
-        ctx.fillText(" / ", col2X + winsWidth + 15, wlValueY + 6 / dpr);
+        ctx.fillStyle = "#888";
+        ctx.textAlign = "left";
 
-        const slashWidth = ctx.measureText(" / ").width;
+        // Trading Days row
+        ctx.fillText("Trading Days", labelX, subY + lineHeight); // TODO: Change to "Total Bought" etc.
+        ctx.textAlign = "right";
+        ctx.shadowColor = "#06b6d4";
+        ctx.shadowBlur = 8 * dpr;
+        ctx.fillStyle = "#06b6d4";
+        ctx.fillText(traded.toString(), valueX, subY + lineHeight);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#888";
+        ctx.textAlign = "left";
 
-        // Losses
-        ctx.font = `bold ${50 * dpr}px Inter, sans-serif`;
+        // Win Streak row
+        ctx.fillText("Win Streak", labelX, subY + 2 * lineHeight); // TODO: Customize or remove rows to fit your 4-5 key stats
+        ctx.textAlign = "right";
+        ctx.shadowColor = "#f59e0b";
+        ctx.shadowBlur = 8 * dpr;
+        ctx.fillStyle = "#f59e0b";
+        ctx.fillText(maxStreak.toString(), valueX, subY + 2 * lineHeight);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#888";
+        ctx.textAlign = "left";
+
+        // Wins / Losses row
+        ctx.fillText("Wins / Losses", labelX, subY + 3 * lineHeight);
+        ctx.textAlign = "right";
+        const wlText = `${wins} / ${losses}`;
         ctx.shadowColor = "#ef4444";
         ctx.shadowBlur = 8 * dpr;
         ctx.fillStyle = "#ef4444";
-        ctx.fillText(
-          losses.toString(),
-          col2X + winsWidth + slashWidth + 15,
-          wlValueY
-        );
+        ctx.fillText(wlText, valueX, subY + 3 * lineHeight);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#888";
+        ctx.textAlign = "left";
+
+        // Weekly P&L row
+        ctx.fillText("Weekly P&L", labelX, subY + 4 * lineHeight); // TODO: Change to "Total Sold" or add percentage like "+20%"
+        ctx.textAlign = "right";
+        const weeklyColor = weeklyProfit >= 0 ? "#22c55e" : "#ef4444";
+        ctx.shadowColor = weeklyColor;
+        ctx.shadowBlur = 8 * dpr;
+        ctx.fillStyle = weeklyColor;
+        ctx.fillText(formatPNL(weeklyProfit), valueX, subY + 4 * lineHeight);
         ctx.shadowBlur = 0;
 
-        // Bottom section
-        const bottomY = height - 95 / dpr;
+        // Bottom left @trader with glow
+        const bottomY = height - 100 / dpr; // TODO: Adjust bottom positioning
+        ctx.textAlign = "left";
         ctx.shadowColor = "#3b82f6";
-        ctx.shadowBlur = 6 * dpr;
-        ctx.font = `bold ${42 * dpr}px Inter, sans-serif`;
+        ctx.shadowBlur = 10 * dpr;
+        ctx.font = `bold ${44 * dpr}px Inter, sans-serif`;
         ctx.fillStyle = "#ffffff";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-        ctx.fillText("@trader", 50, bottomY);
-        ctx.shadowBlur = 0;
+        ctx.fillText("@trader", 60, bottomY); // TODO: Change to your username like "@simple" with avatar box if needed
 
+        // Slogan bottom center
         ctx.textAlign = "center";
-        ctx.font = `${22 * dpr}px Inter, sans-serif`;
-        ctx.fillStyle = "#555";
-        ctx.fillText("Track • Analyze • Improve", width / 2, height - 35 / dpr);
-        ctx.textAlign = "left";
+        ctx.font = `${24 * dpr}px Inter, sans-serif`;
+        ctx.fillStyle = "#555"; // TODO: Customize slogan text and color, e.g., "axiom.trade Save 10% off fees"
+        ctx.fillText("Track • Analyze • Improve", width / 2, height - 40 / dpr);
 
         // Generate blob
         canvas.toBlob(
@@ -509,7 +483,7 @@ const TradingJournal: React.FC = () => {
               } else {
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = `trading-${selectedTimeframe}-${monthNames[currentMonth]}-${currentYear}.png`;
+                a.download = `trading-${selectedTimeframe}-${monthNames[currentMonth]}-${currentYear}.png`; // TODO: Customize download filename
                 a.click();
                 URL.revokeObjectURL(url);
                 setShowShareModal(false);
@@ -580,13 +554,23 @@ const TradingJournal: React.FC = () => {
                 Track your daily P&L performance
               </p>
             </div>
-            <button
-              onClick={handleOpenShareModal}
-              className="flex items-center gap-2 bg-white text-black hover:bg-zinc-100 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
-            >
-              <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Share</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleOpenShareModal}
+                className="flex items-center gap-2 bg-white text-black hover:bg-zinc-100 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">Share</span>
+              </button>
+              <button
+                onClick={clearAllData}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
+                title="Clear all data and start from 0"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Clear</span>
+              </button>
+            </div>
           </div>
 
           {/* Stats Grid */}
@@ -802,7 +786,8 @@ const TradingJournal: React.FC = () => {
             className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 w-full max-w-sm max-h-[80vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-lg font-bold mb-4">Enter Trade Details</h2>
+            <h2 className="text-lg font-bold mb-4">Enter Trade Details</h2>{" "}
+            {/* TODO: Customize modal title if needed */}
             <div className="space-y-3 mb-4">
               <input
                 type="number"
@@ -888,8 +873,8 @@ const TradingJournal: React.FC = () => {
             className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-xl font-bold mb-6">Share Trading Card</h2>
-
+            <h2 className="text-xl font-bold mb-6">Share Trading Card</h2>{" "}
+            {/* TODO: Customize modal title */}
             {/* Timeframe Select */}
             <div className="mb-6">
               <label className="block text-sm text-zinc-400 mb-2 font-medium">
@@ -909,12 +894,12 @@ const TradingJournal: React.FC = () => {
                 }}
                 className="w-full p-3 bg-zinc-800 text-white rounded-lg border-2 border-zinc-700 focus:outline-none focus:border-emerald-500 transition-all duration-200 cursor-pointer"
               >
-                <option value="daily">Daily Performance</option>
+                <option value="daily">Daily Performance</option>{" "}
+                {/* TODO: Customize options if you want different timeframes */}
                 <option value="weekly">Weekly Performance</option>
                 <option value="monthly">Monthly Performance</option>
               </select>
             </div>
-
             {/* Preview Image */}
             {previewUrl ? (
               <div className="mb-6">
@@ -940,7 +925,6 @@ const TradingJournal: React.FC = () => {
                 </div>
               </div>
             )}
-
             {/* Action Buttons */}
             <div className="flex gap-3">
               <button
