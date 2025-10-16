@@ -564,7 +564,7 @@ const TradingJournal: React.FC = () => {
               </button>
               <button
                 onClick={clearAllData}
-                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
+                className="flex items-center gap-2 bg-red-400 hover:bg-red-500 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
                 title="Clear all data and start from 0"
               >
                 <Trash2 className="w-4 h-4" />
